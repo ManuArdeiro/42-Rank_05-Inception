@@ -11,9 +11,6 @@ RUN apt-get update && \
 COPY conf/php-fpm.conf /etc/php/7.4/fpm/php-fpm.conf
 COPY conf/www.conf /etc/php/7.4/fpm/pool.d/www.conf
 
-# WordPress config (will be completed by entrypoint)
-COPY conf/wp-config.php /tmp/wp-config.php
-
 # Entrypoint script
 COPY tools/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh

@@ -10,6 +10,7 @@ local-infile = 0
 skip-show-database
 symbolic-links = 0
 secure_file_priv = /var/lib/mysql-files
+secure-file-priv=""
 
 # Caracteres
 character-set-server = utf8mb4
