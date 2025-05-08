@@ -1,34 +1,58 @@
-version: '3.8'
-
 services:
 
   mariadb:
     container_name: mariadb
-    build: ./srcs/requirements/mariadb
+    image: mariadb_image
+    build:
+      context: requirements/mariadb
+      args:
+        - WP_DATABASE
+        - WP_ADMIN_USER
+        - WP_ADMIN_PASS
     restart: always
     volumes:
       - mariadb_data:/var/lib/mysql
+    expose:
+      - "3306"
     env_file:
-      - ./srcs/.env
+      - .env
     networks:
       - inception
 
   wordpress:
     container_name: wordpress
-    build: ./srcs/requirements/wordpress
+    image: wordpress_image
+    build:
+      context: requirements/wordpress
+      args:
+        - LOGIN
+        - DOMAIN
+        - WP_TITLE
+        - WP_ADMIN_USER
+        - WP_ADMIN_PASS
+        - WP_ADMIN_EMAIL
+        - WP_USER
+        - WP_USER_PASS
+        - WP_USER_EMAIL
     restart: always
     volumes:
       - wordpress_data:/var/www/html
+    expose:
+      - "9000"
+    env_file:
+      - .env
     depends_on:
       - mariadb
-    env_file:
-      - ./srcs/.env
     networks:
       - inception
 
   nginx:
     container_name: nginx
-    build: ./srcs/requirements/nginx
+    image: nginx_image
+    build:
+      context: requirements/nginx
+      args:
+        - LOGIN
     restart: always
     ports:
       - "443:443"
@@ -37,7 +61,7 @@ services:
     depends_on:
       - wordpress
     env_file:
-      - ./srcs/.env
+      - .env
     networks:
       - inception
 
@@ -48,3 +72,4 @@ volumes:
 networks:
   inception:
     driver: bridge
+
