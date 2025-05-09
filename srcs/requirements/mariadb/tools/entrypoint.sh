@@ -1,9 +1,9 @@
-#!/bin/sh
+#!/bin/bash
 
-export MARIADB_ROOT_PASSWORD=$(cat /run/secrets/mariadb_root_pass.txt)
-export MARIADB_USER_PASSWORD=$(cat /run/secrets/mariadb_user_pass.txt)
+if [ -f /entrypoint-initdb.d/init.sql.template ];
+    then
+    envsubst < /entrypoint-initdb.d/init.sql.template > /etc/mysql/init.sql
+    rm /entrypoint-initdb.d/init.sql.template
+fi
 
-envsubst < /tmp/init.sql > /docker-entrypoint-initdb.d/init.sql
-
-# Llama al comando por defecto de MariaDB
-exec su-exec mysql "$@"
+exec "$@"
