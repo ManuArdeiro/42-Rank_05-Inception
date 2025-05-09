@@ -13,20 +13,21 @@ build:
 
 up:
 		sudo mkdir -p "$(VOLUMES)/wordpress" "$(VOLUMES)/mariadb"
-		@$(COMPOSE) up -d
+		$(COMPOSE) up -d
 
 down:
-		@$(COMPOSE) down
+		$(COMPOSE) down
 
 start:
-		@$(COMPOSE) start
+		$(COMPOSE) start
 
 stop:
-		@$(COMPOSE) stop
+		$(COMPOSE) stop
 
 shell:
-		read -p "=> Enter service: " service; \
-		@$(COMPOSE) exec -it $$service /bin/bash
+		@bash -c '\
+			read -p "=> Enter service: " service; \
+			$(COMPOSE) exec -it $$service /bin/bash'
 
 # LIMPIEZA______________________________________________________________________
 

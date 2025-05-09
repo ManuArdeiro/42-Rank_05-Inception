@@ -7,8 +7,11 @@ services:
       context: requirements/mariadb
       args:
         - WP_DATABASE
+        - WP_USER
+        - WP_USER_PASS_FILE
         - WP_ADMIN_USER
         - WP_ADMIN_PASS
+        - MARIADB_ROOT_PASSWORD
     restart: always
     volumes:
       - mariadb_data:/var/lib/mysql
@@ -58,8 +61,8 @@ services:
       - "443:443"
     volumes:
       - wordpress_data:/var/www/html
-      - ./secrets/nginx.crt:/run/secrets/nginx.crt:ro
-      - ./secrets/nginx.key:/run/secrets/nginx.key:ro
+      - ../secrets/nginx.crt:/run/secrets/nginx.crt:ro
+      - ../secrets/nginx.key:/run/secrets/nginx.key:ro
     depends_on:
       - wordpress
     env_file:
