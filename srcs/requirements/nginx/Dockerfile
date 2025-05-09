@@ -13,3 +13,4 @@ RUN mkdir -p /var/www/html /var/lib/nginx/body && \
 EXPOSE 443
 
 CMD ["nginx", "-g", "daemon off;"]
+

@@ -58,9 +58,8 @@ services:
       - "443:443"
     volumes:
       - wordpress_data:/var/www/html
-    secrets:
-      - nginx_cert
-      - nginx_key
+      - ./secrets/nginx.crt:/run/secrets/nginx.crt:ro
+      - ./secrets/nginx.key:/run/secrets/nginx.key:ro
     depends_on:
       - wordpress
     env_file:
@@ -72,13 +71,6 @@ volumes:
   mariadb_data:
   wordpress_data:
 
-secrets:
-  nginx_cert:
-    file: ./secrets/nginx.crt
-  nginx_key:
-    file: ./secrets/nginx.key
-
 networks:
   inception:
     driver: bridge
-
