@@ -20,7 +20,6 @@ COPY ./tools/entrypoint.sh /usr/local/bin/entrypoint.sh
 
 RUN chmod +x /usr/local/bin/entrypoint.sh && \
     mkdir -p /docker-entrypoint-initdb.d /var/run/mysqld && \
-    envsubst < /tmp/init.sql > /docker-entrypoint-initdb.d/init.sql && \
     chown -R mysql:mysql /var/run/mysqld /var/lib/mysql && \
     chmod 755 /var/run/mysqld
 

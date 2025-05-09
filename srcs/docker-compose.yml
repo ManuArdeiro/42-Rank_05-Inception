@@ -19,6 +19,9 @@ services:
       - "3306"
     env_file:
       - .env
+    secrets:
+      - mariadb_root_pass
+      - mariadb_user_pass
     networks:
       - inception
 
@@ -73,6 +76,12 @@ services:
 volumes:
   mariadb_data:
   wordpress_data:
+
+secrets:
+  mariadb_root_pass:
+    file: ../secrets/mariadb_root_pass.txt
+  mariadb_user_pass:
+    file: ../secrets/mariadb_user_pass.txt
 
 networks:
   inception:
