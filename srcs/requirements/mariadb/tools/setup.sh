@@ -22,7 +22,7 @@ if [ ! -f /var/lib/mysql/.initialized ]; then
     
     # Configuración
     ROOT_PASS=$(tr -d '\n\r' < ${MARIADB_ROOT_PASSWORD_FILE})
-    USER_PASS=$(tr -d '\n\r' < ${MARIADB_PASSWORD_FILE})
+    USER_PASS=$(tr -d '\n\r' < "${MARIADB_USER_PASSWORD_FILE}")
     ADMIN_PASS=$(tr -d '\n\r' < ${MARIADB_ADMIN_PASSWORD_FILE})
     
     mysql -uroot --socket=/tmp/mysql.sock <<SQL

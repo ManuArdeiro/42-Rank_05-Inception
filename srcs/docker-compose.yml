@@ -12,7 +12,7 @@ services:
       - MARIADB_ROOT_PASSWORD_FILE=/run/secrets/mariadb_root_pass
       - MARIADB_DATABASE=${MARIADB_DATABASE}
       - MARIADB_USER=${MARIADB_USER}
-      - MARIADB_PASSWORD_FILE=/run/secrets/mariadb_user_pass
+      - MARIADB_USER_PASSWORD_FILE=/run/secrets/mariadb_user_pass
       - MARIADB_ADMIN_USER=${MARIADB_ADMIN_USER}
       - MARIADB_ADMIN_PASSWORD_FILE=/run/secrets/mariadb_admin_pass
     secrets:
@@ -36,7 +36,14 @@ services:
     restart: always
     volumes:
       - wordpress_data:/var/www/html
+    environment:
+      - MARIADB_USER_PASSWORD_FILE=/run/secrets/mariadb_user_pass
+      - WP_DATABASE=${MARIADB_DATABASE}
+      - WP_DATABASE_USER=${MARIADB_USER} 
     secrets:
+      - source: mariadb_user_pass
+        target: mariadb_user_pass
+        mode: 0444
       - source: wp_admin_pass
         target: wp_admin_pass
       - source: wp_user_pass
@@ -73,17 +80,7 @@ services:
 
 volumes:
   mariadb_data:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: /home/${USER}/data/mariadb 
   wordpress_data:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: /home/${USER}/data/wp  
 
 
 secrets:

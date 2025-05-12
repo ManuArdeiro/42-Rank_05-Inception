@@ -8,9 +8,22 @@ chown -R www-data:www-data "$WP_PATH"
 
 # Waiting for mariadb
 echo "Esperando a MariaDB..."
-while ! mariadb -h mariadb -u "$WP_DATABASE_USER" -p"$(cat $MARIADB_USER_PASS_FILE)" -e "SELECT 1;" &> /dev/null;
-    do 
+for i in {1..30}; do
+    if mariadb -h mariadb -u "$WP_DATABASE_USER" -p"$(cat $MARIADB_USER_PASSWORD_FILE)" -e "SELECT 1;" &> /dev/null; then
+        echo "MariaDB listo."
+        break
+    fi
+    echo "Intento $i/30 - Esperando conexión..."
     sleep 2
+    if [ $i -eq 30 ]; then
+        echo "ERROR: No se pudo conectar a MariaDB después de 30 intentos"
+        echo "Probando conexión básica a puerto..."
+        timeout 1 bash -c "cat < /dev/null > /dev/tcp/mariadb/3306" && echo "Puerto accesible" || echo "Puerto inaccesible"
+        echo "Contenido de variables:"
+        echo "Usuario: $WP_DATABASE_USER"
+        echo "Contraseña: $(cat $MARIADB_USER_PASSWORD_FILE || echo 'NO ACCESIBLE')"
+        exit 1
+    fi
 done
 echo "MariaDB listo."
 
@@ -28,7 +41,7 @@ if [ ! -f "$WP_PATH/wp-config.php" ];
     wp --allow-root --path="$WP_PATH" config create \
         --dbname="$WP_DATABASE" \
         --dbuser="$WP_DATABASE_USER" \
-        --dbpass="$(cat $MARIADB_USER_PASS_FILE)" \
+        --dbpass="$(cat $MARIADB_USER_PASSWORD_FILE)" \
         --dbhost="mariadb" \
         --dbprefix="wp_"
 fi
@@ -41,7 +54,7 @@ if ! wp --allow-root --path="$WP_PATH" core is-installed;
         --url="$WP_URL" \
         --title="$WP_TITLE" \
         --admin_user="$WP_ADMIN_USER" \
-        --admin_password="$(cat $WP_ADMIN_PASS_FILE)" \
+        --admin_password="$(cat $WP_ADMIN_PASSWORD_FILE)" \
         --admin_email="$WP_ADMIN_EMAIL"
 fi
 
@@ -50,9 +63,9 @@ if ! wp --allow-root --path="$WP_PATH" user get "$WP_USER" &> /dev/null;
     then
     echo "Creando usuario adicional..."
     wp --allow-root --path="$WP_PATH" user create "$WP_USER" "$WP_USER_EMAIL" \
-        --user_pass="$(cat $WP_USER_PASS_FILE)" \
+        --user_pass="$(cat $WP_USER_PASSWORD_FILE)" \
         --role="$WP_USER_ROLE"
 fi
 
 # Iniciar PHP-FPM
-exec php-fpm -F
+exec /usr/sbin/php-fpm8.2 -F
