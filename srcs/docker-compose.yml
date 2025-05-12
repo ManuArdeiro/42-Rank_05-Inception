@@ -78,9 +78,70 @@ services:
     networks:
       - inception
 
+  static:
+    container_name: static-site
+    build:
+      context: ./requirements/static
+    image: static_html
+    expose:
+      - "80"
+    networks:
+      - inception
+
+  redis:
+    image: redis:alpine
+    restart: always
+    networks:
+      - inception
+    volumes:
+      - redis_data:/data
+
+  ftp:
+    container_name: ftp-server
+    image: fauria/vsftpd
+    restart: always
+    ports:
+      - "21:21"
+      - "20:20"
+      - "21100-21110:21100-21110"
+    environment:
+      - FTP_USER=ftpuser
+      - FTP_PASS=ftppass
+      - PASV_ADDRESS=127.0.0.1
+      - PASV_MIN_PORT=21100
+      - PASV_MAX_PORT=21110
+      - LOG_STDOUT=YES
+    volumes:
+      - wordpress_data:/var/www/html
+    networks:
+      - inception
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8081:8080"
+    environment:
+      - ADMINER_DEFAULT_SERVER=mariadb
+    networks:
+      - inception
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor
+    ports:
+      - "8082:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - inception
+
 volumes:
   mariadb_data:
   wordpress_data:
+  redis_data:
 
 
 secrets:

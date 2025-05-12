@@ -46,6 +46,10 @@ if [ ! -f "$WP_PATH/wp-config.php" ];
         --dbprefix="wp_"
 fi
 
+wp --allow-root --path="$WP_PATH" plugin install redis-cache --activate
+wp --allow-root --path="$WP_PATH" config set WP_REDIS_HOST redis
+wp --allow-root --path="$WP_PATH" config set WP_REDIS_PORT 6379
+
 # Instalar WordPress si no está instalado
 if ! wp --allow-root --path="$WP_PATH" core is-installed;
     then
