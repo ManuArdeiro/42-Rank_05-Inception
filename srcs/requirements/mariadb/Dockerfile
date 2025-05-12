@@ -1,25 +1,21 @@
-# ───────── MariaDB ─────────
+FROM debian:bullseye-slim
 
-FROM debian:bookworm-slim
+RUN apt-get update && apt-get install -y \
+    mariadb-server \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN apt update -y && apt upgrade -y
+RUN mkdir -p /var/run/mysqld \
+    && chown -R mysql:mysql /var/lib/mysql /var/run/mysqld \
+    && chmod 777 /var/run/mysqld
 
-RUN apt-get install -y mariadb-server mariadb-client curl procps gettext gosu && \
-    rm -rf /var/lib/apt/lists/*
+COPY ./tools/setup.sh /tmp/setup.sh
+COPY ./conf/my.cnf /etc/mysql/my.cnf
 
-COPY ./conf/50-server.cnf /etc/mysql/mariadb.conf.d/50-server.cnf
-COPY ./tools/init.sql.template /etc/mysql/init.sql
-COPY ./tools/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /tmp/setup.sh
 
-RUN chmod +x /usr/local/bin/entrypoint.sh && \
-    mkdir -p /docker-entrypoint-initdb.d /var/run/mysqld /var/log/mysql && \
-    chown -R mysql:mysql /var/run/mysqld /var/lib/mysql /docker-entrypoint-initdb.d/ /var/log/mysql && \
-    chmod 755 /var/run/mysqld
+VOLUME /var/lib/mysql
 
 EXPOSE 3306
 
-USER mysql
-
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-CMD ["mysqld"]
-
+ENTRYPOINT ["/tmp/setup.sh"]
+CMD ["mysqld_safe"]

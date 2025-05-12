@@ -1,10 +1,10 @@
 #!/bin/bash
 
+WP_PATH="/var/www/html"
+
 echo "Ajustando permisos..."
 chown -R www-data:www-data /var/www/html
 chown -R www-data:www-data "$WP_PATH"
-
-WP_PATH="/var/www/html"
 
 # Waiting for mariadb
 echo "Esperando a MariaDB..."

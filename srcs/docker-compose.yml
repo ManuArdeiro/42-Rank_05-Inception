@@ -4,24 +4,27 @@ services:
     container_name: mariadb
     image: mariadb_image
     build:
-      context: requirements/mariadb
-      args:
-        - WP_DATABASE
-        - WP_USER
-        - WP_USER_PASS_FILE
-        - WP_ADMIN_USER
-        - WP_ADMIN_PASS
-        - MARIADB_ROOT_PASSWORD
+      context: ./requirements/mariadb
     restart: always
     volumes:
       - mariadb_data:/var/lib/mysql
+    environment:
+      - MARIADB_ROOT_PASSWORD_FILE=/run/secrets/mariadb_root_pass
+      - MARIADB_DATABASE=${MARIADB_DATABASE}
+      - MARIADB_USER=${MARIADB_USER}
+      - MARIADB_PASSWORD_FILE=/run/secrets/mariadb_user_pass
+      - MARIADB_ADMIN_USER=${MARIADB_ADMIN_USER}
+      - MARIADB_ADMIN_PASSWORD_FILE=/run/secrets/mariadb_admin_pass
+    secrets:
+      - source: mariadb_root_pass
+        target: mariadb_root_pass
+      - source: mariadb_user_pass
+        target: mariadb_user_pass
+      - source: mariadb_admin_pass
+        target: mariadb_admin_pass
     expose:
       - "3306"
-    env_file:
-      - .env
-    secrets:
-      - mariadb_root_pass
-      - mariadb_user_pass
+    env_file: .env
     networks:
       - inception
 
@@ -30,19 +33,14 @@ services:
     image: wordpress_image
     build:
       context: requirements/wordpress
-      args:
-        - LOGIN
-        - DOMAIN
-        - WP_TITLE
-        - WP_ADMIN_USER
-        - WP_ADMIN_PASS
-        - WP_ADMIN_EMAIL
-        - WP_USER
-        - WP_USER_PASS
-        - WP_USER_EMAIL
     restart: always
     volumes:
       - wordpress_data:/var/www/html
+    secrets:
+      - source: wp_admin_pass
+        target: wp_admin_pass
+      - source: wp_user_pass
+        target: wp_user_pass
     expose:
       - "9000"
     env_file:
@@ -51,7 +49,7 @@ services:
       - mariadb
     networks:
       - inception
-
+  
   nginx:
     container_name: nginx
     image: nginx_image
@@ -75,13 +73,30 @@ services:
 
 volumes:
   mariadb_data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /home/${USER}/data/mariadb 
   wordpress_data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /home/${USER}/data/wp  
+
 
 secrets:
   mariadb_root_pass:
     file: ../secrets/mariadb_root_pass.txt
+  mariadb_admin_pass:
+    file: ../secrets/mariadb_admin_pass.txt
   mariadb_user_pass:
     file: ../secrets/mariadb_user_pass.txt
+  wp_admin_pass:
+    file: ../secrets/wp_admin_pass.txt
+  wp_user_pass:
+    file: ../secrets/wp_user_pass.txt
 
 networks:
   inception:
