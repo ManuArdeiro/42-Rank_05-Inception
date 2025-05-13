@@ -14,16 +14,6 @@ for i in {1..30}; do
         break
     fi
     echo "Intento $i/30 - Esperando conexión..."
-    sleep 2
-    if [ $i -eq 30 ]; then
-        echo "ERROR: No se pudo conectar a MariaDB después de 30 intentos"
-        echo "Probando conexión básica a puerto..."
-        timeout 1 bash -c "cat < /dev/null > /dev/tcp/mariadb/3306" && echo "Puerto accesible" || echo "Puerto inaccesible"
-        echo "Contenido de variables:"
-        echo "Usuario: $WP_DATABASE_USER"
-        echo "Contraseña: $(cat $MARIADB_USER_PASSWORD_FILE || echo 'NO ACCESIBLE')"
-        exit 1
-    fi
 done
 echo "MariaDB listo."
 
